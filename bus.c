@@ -1,4 +1,5 @@
 #include "SIMLIB/simlib.h"      /* Required for use of simlib.c. */
+#include <stdbool.h>            /* Boolean */
 
 #define EVENT_PERSON_ARRIVAL    1 /* Event type for arrival of a person to a location */
 #define EVENT_BUS_ARRIVAL       2 /* Event type for arrival of the bus to a location */
@@ -14,10 +15,39 @@
 #define STREAM_LOADING          5 /* Random-number stream for loading times */
 #define STREAM_DESTINATION      6 /* Random-number stream for car-rental destinations */
 
+// Define SAMPST Variables so it's more readable because jesus christ there's lots of things to account for here
+// Something to note: The numbers are not in order because they're gonna be added/subtracted so as to not overlap with each other
+#define SAMPST_DELAY            0 /* Delay in queue at Stations 1, 2, 3 */
+#define SAMPST_SYSTEM           3 /* Time a person is in system by arrival */
+#define SAMPST_STOP             6 /* How long bus is stopped at Stations 1, 2, 3 */
+#define SAMPST_LOOP             10/* Time for how long the bus loops */
+
 #define NUM_LOCATIONS           3 /* Number of locations */
 #define CAR_RENTAL              3 /* Location of Car Rental */
 
 /* Declare non-simlib global variables. */
+
+int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1];
+double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1];
+bool bus_busy, min_stop_passed;
+
+void bus_depart() {
+    int location = bus_location;
+
+    // Count time the bus stopped at said location
+    sampst(sim_time - bus_arrival_time, SAMPST_STOP + location);
+
+    // Departure from car rental starts new loop
+    if (location == CAR_RENTAL) {
+        sampst(sim_time - last_departure_from_rental, SAMPST_LOOP);
+        last_departure_from_rental = sim_time;
+    }
+
+    // Schedule the arrival of the bus to the next location.
+    bus_location = 0;
+    transfer[3] = next_location[location];
+    event_schedule(sim_time + travel_time[location], EVENT_BUS_ARRIVAL);
+}
 
 int main() {
     //* Add something about input and output file */
