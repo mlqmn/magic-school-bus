@@ -23,14 +23,15 @@
 #define SAMPST_LOOP             10/* Time for how long the bus loops */
 
 #define LIST_QUEUE              0 /* List LIST_QUEUE + i is the queue at location i */
+#define LIST_BUS                3 /* List LIST_BUS + i holds the people on the bus with destination i */
 
 #define NUM_LOCATIONS           3 /* Number of locations */
 #define CAR_RENTAL              3 /* Location of Car Rental */
 
 /* Declare non-simlib global variables. */
 
-int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1];
-double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1], load_min, load_max;
+int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1], num_on_bus;
+double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1], load_min, load_max, unload_min, unload_max;
 bool bus_busy, min_stop_passed;
 
 void bus_depart() { /* Departure of bus from current location */
