@@ -22,16 +22,18 @@
 #define SAMPST_STOP             6 /* How long bus is stopped at Stations 1, 2, 3 */
 #define SAMPST_LOOP             10/* Time for how long the bus loops */
 
+#define LIST_QUEUE              0 /* List LIST_QUEUE + i is the queue at location i */
+
 #define NUM_LOCATIONS           3 /* Number of locations */
 #define CAR_RENTAL              3 /* Location of Car Rental */
 
 /* Declare non-simlib global variables. */
 
 int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1];
-double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1];
+double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1], load_min, load_max;
 bool bus_busy, min_stop_passed;
 
-void bus_depart() {
+void bus_depart() { /* Departure of bus from current location */
     int location = bus_location;
 
     // Count time the bus stopped at said location
@@ -47,6 +49,45 @@ void bus_depart() {
     bus_location = 0;
     transfer[3] = next_location[location];
     event_schedule(sim_time + travel_time[location], EVENT_BUS_ARRIVAL);
+}
+
+void serve_next() { /* Start next unloading/loading at current location.
+                       if nothing to do, let bus depart*/
+    int location = bus_location;
+    double arrival_time, origin, destination;
+
+    // Check if anyone on the bus is getting off here
+    if (list_size[LIST_BUS + location] > 0) {
+        // Start unloading the first person for this location
+        list_remove(FIRST, LIST_BUS + location);
+        arrival_time = transfer[1];
+        origin = transfer[2];
+        bus_busy = true;
+        transfer[3] = arrival_time;
+        transfer[4] = origin;
+        event_schedule(sim_time + uniform(unload_min, unload_max, STREAM_UNLOADING), EVENT_UNLOAD_DONE);
+    }
+
+    // Unload done. Check if there's people to be loaded
+    else if (list_size[LIST_QUEUE + location] > 0 && num_on_bus < bus_capacity) {
+        // Start loading the first person in the queue, tally delay in queue for this location
+        list_remove(FIRST, LIST_QUEUE + location);
+        sampst(sim_time - transfer[1], SAMPST_DELAY + location);
+        arrival_time = transfer[1];
+        origin = transfer[2];
+        destination = transfer[3];
+        bus_busy = true;
+        transfer[3] = arrival_time;
+        transfer[4] = origin;
+        transfer[5] = destination;
+        event_schedule(sim_time + uniform(load_min, load_max, STREAM_LOADING), EVENT_LOAD_DONE);
+    } else {
+        // Nothing to unload or load, bus leaves if min stop time passed, wait otherwise
+        bus_busy = false;
+        if (min_stop_passed) {
+            bus_depart();
+        }
+    }
 }
 
 int main() {
