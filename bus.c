@@ -31,7 +31,7 @@
 /* Declare non-simlib global variables. */
 
 int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1], num_on_bus;
-double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1], load_min, load_max, unload_min, unload_max;
+double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1], load_min, load_max, unload_min, unload_max, mean_interarrival[NUM_LOCATIONS + 1], prob_distrib_dest[26], min_stop_time;
 bool bus_busy, min_stop_passed;
 
 void bus_depart() { /* Departure of bus from current location */
@@ -89,6 +89,42 @@ void serve_next() { /* Start next unloading/loading at current location.
             bus_depart();
         }
     }
+}
+
+void person_arrive() { /* When person arrives to a location */
+    int destination;
+    int location = transfer[3];
+
+    // Schedule next arrival to this location
+    transfer[3] = location;
+    event_schedule(sim_time + expon(mean_interarrival[location], STREAM_INTERARRIVAL + location), EVENT_PERSON_ARRIVAL);
+
+    if (location == CAR_RENTAL) {
+        destination = random_integer(prob_distrib_dest, STREAM_DESTINATION);
+    } else { // Destination != CAR_RENTAL
+        destination = CAR_RENTAL;
+    }
+
+    // Place arriving person at end of queue for this location
+    transfer[1] = sim_time;
+    transfer[2] = location;
+    transfer[3] = destination;
+    list_file(LAST, LIST_QUEUE + location);
+
+    // If bus is idle, start loading
+    if (bus_location == location && !bus_busy) {
+        serve_next();
+    }
+}
+
+void bus_arrive() { /* When bus arrives to location */
+    bus_location = transfer[3];
+    bus_arrival_time = sim_time;
+    min_stop_passed = 0;
+
+    // Schedule end of the minimum stop time then start unloading
+    event_schedule(sim_time + min_stop_time, EVENT_MIN_STOP_END);
+    serve_next();
 }
 
 int main() {
