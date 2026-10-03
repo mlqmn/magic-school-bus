@@ -26,11 +26,13 @@
 #define LIST_BUS                3 /* List LIST_BUS + i holds the people on the bus with destination i */
 
 #define NUM_LOCATIONS           3 /* Number of locations */
+#define TERMINAL_1              1 /* Location of Terminal 1 */
+#define TERMINAL_2              2 /* Location of Terminal 2 */
 #define CAR_RENTAL              3 /* Location of Car Rental */
 
 /* Declare non-simlib global variables. */
 
-int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1], num_on_bus;
+int i, j, bus_capacity, bus_location, next_location[NUM_LOCATIONS + 1], num_on_bus, length_simulation;
 double bus_arrival_time, last_departure_from_rental, travel_time[NUM_LOCATIONS + 1], load_min, load_max, unload_min, unload_max, mean_interarrival[NUM_LOCATIONS + 1], prob_distrib_dest[26], min_stop_time;
 bool bus_busy, min_stop_passed;
 
@@ -78,6 +80,8 @@ void serve_next() { /* Start next unloading/loading at current location.
         origin = transfer[2];
         destination = transfer[3];
         bus_busy = true;
+        list_file(LAST, LIST_BUS + destination);
+        num_on_bus++;
         transfer[3] = arrival_time;
         transfer[4] = origin;
         transfer[5] = destination;
@@ -127,8 +131,102 @@ void bus_arrive() { /* When bus arrives to location */
     serve_next();
 }
 
-int main() {
-    //* Add something about input and output file */
+void init_simulation() {
+    next_location[CAR_RENTAL] = TERMINAL_1;
+    next_location[TERMINAL_1] = TERMINAL_2;
+    next_location[TERMINAL_2] = CAR_RENTAL;
+    bus_location = CAR_RENTAL;
+    event_schedule(sim_time + travel_time[TERMINAL_1], EVENT_BUS_ARRIVAL);
+    transfer[3] = TERMINAL_1;
+    event_schedule(sim_time + expon(mean_interarrival[TERMINAL_1], STREAM_INTERARRIVAL + TERMINAL_1), EVENT_PERSON_ARRIVAL);
+    transfer[3] = TERMINAL_2;
+    event_schedule(sim_time + expon(mean_interarrival[TERMINAL_2], STREAM_INTERARRIVAL + TERMINAL_2), EVENT_PERSON_ARRIVAL);
+    transfer[3] = CAR_RENTAL;
+    event_schedule(sim_time + expon(mean_interarrival[CAR_RENTAL], STREAM_INTERARRIVAL + CAR_RENTAL), EVENT_PERSON_ARRIVAL);
+    event_schedule(sim_time + length_simulation, EVENT_END_SIMULATION);
+}
+
+void read_input(FILE *infile, FILE *outfile) {
+    fscanf(infile, "%i", bus_capacity);
+
+    fscanf(infile, "%lg", &mean_interarrival[TERMINAL_1]);
+    fscanf(infile, "%lg", &mean_interarrival[TERMINAL_2]);
+    fscanf(infile, "%lg", &mean_interarrival[CAR_RENTAL]);
+
+    fscanf(infile, "%lg", &travel_time[TERMINAL_1]);
+    fscanf(infile, "%lg", &travel_time[TERMINAL_2]);
+    fscanf(infile, "%lg", &travel_time[CAR_RENTAL]);
+
+    fscanf(infile, "%lg", &load_min);
+    fscanf(infile, "%lg", &load_max);
+
+    fscanf(infile, "%lg", &unload_min);
+    fscanf(infile, "%lg", &unload_max);
+
+    fscanf(infile, "%lg", &min_stop_time);
+
+    fscanf(infile, "%lg", &prob_distrib_dest[TERMINAL_1]);
+    fscanf(infile, "%lg", &prob_distrib_dest[TERMINAL_2]);
+    fscanf(infile, "%lg", &length_simulation);
+
+    fprintf(outfile, "car rental system simulation\n");
+
+    fprintf(outfile, "bus capacity                  : %i  \n", bus_capacity);
+
+    fprintf(outfile, "mean interarrival terminal 1  : %lgs \n", &mean_interarrival[TERMINAL_1]);
+    fprintf(outfile, "mean interarrival terminal 2  : %lgs \n", &mean_interarrival[TERMINAL_2]);
+    fprintf(outfile, "mean interarrival car rental  : %lgs \n", &mean_interarrival[CAR_RENTAL]);
+
+    fprintf(outfile, "travel time terminal 1        : %lgs \n", &travel_time[TERMINAL_1]);
+    fprintf(outfile, "travel time terminal 2        : %lgs \n", &travel_time[TERMINAL_2]);
+    fprintf(outfile, "travel time car rental        : %lgs \n", &travel_time[CAR_RENTAL]);
+
+    fprintf(outfile, "min load time                 : %lgs \n", &load_min);
+    fprintf(outfile, "max load time                 : %lgs \n", &load_max);
+
+    fprintf(outfile, "min unload time               : %lgs \n", &unload_min);
+    fprintf(outfile, "max unload time               : %lgs \n", &unload_max);
+
+    fprintf(outfile, "min stop time                 : %lgs \n", &min_stop_time);
+
+    fprintf(outfile, "probability go to terminal 1  : %lgs \n", &prob_distrib_dest[TERMINAL_1]);
+    fprintf(outfile, "probability go to terminal 2  : %lgs \n", &prob_distrib_dest[TERMINAL_2]);
+    fprintf(outfile, "length of simulation          : %lgs \n", &length_simulation);
+
+}
+
+void run_simulation() {
+    do {
+        timing();
+        switch (next_event_type) {
+            case EVENT_PERSON_ARRIVAL:
+            person_arrive();
+            break;
+            case EVENT_BUS_ARRIVAL:
+            bus_arrive();
+            break;
+            case EVENT_UNLOAD_DONE:
+            serve_next();
+            break;
+            case EVENT_LOAD_DONE:
+            serve_next();
+            break;
+            case EVENT_MIN_STOP_END:
+            bus_depart();
+            break;
+            case EVENT_END_SIMULATION:
+            report();
+            break;
+        }
+    } while (next_event_type != EVENT_END_SIMULATION);
+
+}
+
+int main(void) {
+    /* Read input files */
+    FILE *infile = fopen("bus.in", "r");
+    FILE *outfile = fopen("bus.out", "w");
+    read_input(infile, outfile);
     
     /* Initialize to idle state? */
     
@@ -136,17 +234,14 @@ int main() {
     init_simlib();
     
     /* Set maxatr = max(maximum number of attributes per record, 4) */
-    maxatr = 4;			/* NEVER SET maxatr TO BE SMALLER THAN 4. */
+    maxatr = 5;			/* NEVER SET maxatr TO BE SMALLER THAN 4. */
   
-    /* Schedule the arrival of the first job. */
-    // event_schedule()
-    
-    /* Schedule the end of the simulation */
-    // event_schedule()
+    /* Schedule the arrival of bus, passengers, and end simulation. */
+    init_simulation();
 
     /* Run the simulation until it terminates after an end-simulation event
        (type EVENT_END_SIMULATION) occurs. */
-
+    run_simulation();
 
     /* Then close input and output file */
     
