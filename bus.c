@@ -8,6 +8,7 @@
 #define EVENT_MIN_STOP_END      5 /* Event type for end of the minimum stop time of the bus at a location */
 #define EVENT_END_SIMULATION    6 /* Event type for end of simulation */
 
+#define TIMEST_BUS              1 /* Timest variable for number on the bus */
 #define STREAM_INTERARRIVAL     0 /* Random-number stream for interarrivals 
                                     base: interarrival streams are 0 + loc = 1..3 
                                     OR, klo mau, bagi ke STREAM_INTERARRIVAL 1/2/3 trs di-switch2 gt tergantung lokasinya */
@@ -129,6 +130,41 @@ void bus_arrive() { /* When bus arrives to location */
     // Schedule end of the minimum stop time then start unloading
     event_schedule(sim_time + min_stop_time, EVENT_MIN_STOP_END);
     serve_next();
+}
+
+void unload_done() { /* When unloading one person is done */
+    int origin = transfer[4];
+
+    // Tally time in system for this person's arrival location
+    sampst(sim_time - transfer[3], SAMPST_SYSTEM + origin);
+
+    num_on_bus--;
+    timest((double)num_on_bus, TIMEST_BUS);
+
+    serve_next();
+}
+
+void load_done() { /* When loading one person is done */
+    int destination = transfer[5];
+
+    transfer[1] = transfer[3];
+    transfer[2] = transfer[4];
+    transfer[3] = destination;
+    list_file(LAST, LIST_BUS + destination);
+
+    ++num_on_bus;
+    timest((double)num_on_bus, TIMEST_BUS);
+
+    serve_next();
+}
+
+void min_stop_end() { /* When minimum stop time is done */
+    min_stop_passed = true;
+
+    // If no unloading or loading is in process, bus leaves immediately
+    if (!bus_busy) {
+        bus_depart();
+    }
 }
 
 void init_simulation() {
