@@ -81,8 +81,6 @@ void serve_next() { /* Start next unloading/loading at current location.
         origin = transfer[2];
         destination = transfer[3];
         bus_busy = true;
-        list_file(LAST, LIST_BUS + destination);
-        num_on_bus++;
         transfer[3] = arrival_time;
         transfer[4] = origin;
         transfer[5] = destination;
@@ -242,10 +240,10 @@ void run_simulation() {
             bus_arrive();
             break;
             case EVENT_UNLOAD_DONE:
-            serve_next();
+            unload_done();
             break;
             case EVENT_LOAD_DONE:
-            serve_next();
+            load_done();
             break;
             case EVENT_MIN_STOP_END:
             bus_depart();
@@ -258,6 +256,8 @@ void run_simulation() {
 
 }
 
+void report() {
+}
 int main(void) {
     /* Read input files */
     FILE *infile = fopen("bus.in", "r");
@@ -280,5 +280,6 @@ int main(void) {
     run_simulation();
 
     /* Then close input and output file */
-    
+    fclose(infile);
+    fclose(outfile);
 }
