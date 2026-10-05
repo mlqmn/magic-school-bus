@@ -170,9 +170,9 @@ void init_simulation() {
     next_location[CAR_RENTAL] = TERMINAL_1;
     next_location[TERMINAL_1] = TERMINAL_2;
     next_location[TERMINAL_2] = CAR_RENTAL;
-    bus_location = CAR_RENTAL;
+    bus_location = 0;
     transfer[3] = TERMINAL_1;
-    event_schedule(sim_time + travel_time[TERMINAL_1], EVENT_BUS_ARRIVAL);
+    event_schedule(sim_time + travel_time[CAR_RENTAL], EVENT_BUS_ARRIVAL);
     transfer[3] = TERMINAL_1;
     event_schedule(sim_time + expon(mean_interarrival[TERMINAL_1], STREAM_INTERARRIVAL + TERMINAL_1), EVENT_PERSON_ARRIVAL);
     transfer[3] = TERMINAL_2;
