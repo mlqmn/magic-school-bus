@@ -209,25 +209,25 @@ void read_input(FILE *infile, FILE *outfile) {
 
     fprintf(outfile, "bus capacity                  : %i  \n", bus_capacity);
 
-    fprintf(outfile, "mean interarrival terminal 1  : %lgs \n", mean_interarrival[TERMINAL_1]);
-    fprintf(outfile, "mean interarrival terminal 2  : %lgs \n", mean_interarrival[TERMINAL_2]);
-    fprintf(outfile, "mean interarrival car rental  : %lgs \n", mean_interarrival[CAR_RENTAL]);
+    fprintf(outfile, "mean interarrival terminal 1  : %lgm \n", mean_interarrival[TERMINAL_1]);
+    fprintf(outfile, "mean interarrival terminal 2  : %lgm \n", mean_interarrival[TERMINAL_2]);
+    fprintf(outfile, "mean interarrival car rental  : %lgm \n", mean_interarrival[CAR_RENTAL]);
 
-    fprintf(outfile, "travel time terminal 1        : %lgs \n", travel_time[TERMINAL_1]);
-    fprintf(outfile, "travel time terminal 2        : %lgs \n", travel_time[TERMINAL_2]);
-    fprintf(outfile, "travel time car rental        : %lgs \n", travel_time[CAR_RENTAL]);
+    fprintf(outfile, "travel time terminal 1        : %lgm \n", travel_time[TERMINAL_1]);
+    fprintf(outfile, "travel time terminal 2        : %lgm \n", travel_time[TERMINAL_2]);
+    fprintf(outfile, "travel time car rental        : %lgm \n", travel_time[CAR_RENTAL]);
 
-    fprintf(outfile, "min load time                 : %lgs \n", load_min);
-    fprintf(outfile, "max load time                 : %lgs \n", load_max);
+    fprintf(outfile, "min load time                 : %lgm \n", load_min);
+    fprintf(outfile, "max load time                 : %lgm \n", load_max);
 
-    fprintf(outfile, "min unload time               : %lgs \n", unload_min);
-    fprintf(outfile, "max unload time               : %lgs \n", unload_max);
+    fprintf(outfile, "min unload time               : %lgm \n", unload_min);
+    fprintf(outfile, "max unload time               : %lgm \n", unload_max);
 
-    fprintf(outfile, "min stop time                 : %lgs \n", min_stop_time);
+    fprintf(outfile, "min stop time                 : %lgm \n", min_stop_time);
 
-    fprintf(outfile, "probability go to terminal 1  : %lgs \n", prob_distrib_dest[TERMINAL_1]);
-    fprintf(outfile, "probability go to terminal 2  : %lgs \n", prob_distrib_dest[TERMINAL_2]);
-    fprintf(outfile, "length of simulation          : %lgs \n", length_simulation);
+    fprintf(outfile, "probability go to terminal 1  : %lgm \n", prob_distrib_dest[TERMINAL_1]);
+    fprintf(outfile, "probability go to terminal 2  : %lgm \n", prob_distrib_dest[TERMINAL_2]);
+    fprintf(outfile, "length of simulation          : %lgm \n", length_simulation);
 
 }
 
