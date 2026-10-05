@@ -173,6 +173,7 @@ void init_simulation() {
     next_location[TERMINAL_1] = TERMINAL_2;
     next_location[TERMINAL_2] = CAR_RENTAL;
     bus_location = CAR_RENTAL;
+    transfer[3] = TERMINAL_1;
     event_schedule(sim_time + travel_time[TERMINAL_1], EVENT_BUS_ARRIVAL);
     transfer[3] = TERMINAL_1;
     event_schedule(sim_time + expon(mean_interarrival[TERMINAL_1], STREAM_INTERARRIVAL + TERMINAL_1), EVENT_PERSON_ARRIVAL);
@@ -233,17 +234,17 @@ void read_input(FILE *infile, FILE *outfile) {
 }
 
 void report() {
-    fprintf(outfile, "\n\n\nAverage number on bus = %10.3f", timest(0.0, TIMEST_BUS));
-    fprintf(outfile, "\n\nAverage delay in queue at terminal 1 = %10.3f", sampst(0.0, SAMPST_DELAY + TERMINAL_1));
-    fprintf(outfile, "\nAverage delay in queue at terminal 2 = %10.3f", sampst(0.0, SAMPST_DELAY + TERMINAL_2));
-    fprintf(outfile, "\nAverage delay in queue at car rental = %10.3f", sampst(0.0, SAMPST_DELAY + CAR_RENTAL));
-    fprintf(outfile, "\n\nAverage time in system for arrivals at terminal 1 = %10.3f", sampst(0.0, SAMPST_SYSTEM + TERMINAL_1));
-    fprintf(outfile, "\nAverage time in system for arrivals at terminal 2 = %10.3f", sampst(0.0, SAMPST_SYSTEM + TERMINAL_2));
-    fprintf(outfile, "\nAverage time in system for arrivals at car rental = %10.3f", sampst(0.0, SAMPST_SYSTEM + CAR_RENTAL));
-    fprintf(outfile, "\n\nAverage time bus is stopped at terminal 1 = %10.3f", sampst(0.0, SAMPST_STOP + TERMINAL_1));
-    fprintf(outfile, "\nAverage time bus is stopped at terminal 2 = %10.3f", sampst(0.0, SAMPST_STOP + TERMINAL_2));
-    fprintf(outfile, "\nAverage time bus is stopped at car rental = %10.3f", sampst(0.0, SAMPST_STOP + CAR_RENTAL));
-    fprintf(outfile, "\n\nAverage time for a loop of the bus = %10.3f", sampst(0.0, SAMPST_LOOP));    double avg;
+    fprintf(outfile, "\n\n\nAverage number on bus = %10.3f", timest(0.0, -TIMEST_BUS));
+    fprintf(outfile, "\n\nAverage delay in queue at terminal 1 = %10.3f", sampst(0.0, -(SAMPST_DELAY + TERMINAL_1)));
+    fprintf(outfile, "\nAverage delay in queue at terminal 2 = %10.3f", sampst(0.0, -(SAMPST_DELAY + TERMINAL_2)));
+    fprintf(outfile, "\nAverage delay in queue at car rental = %10.3f", sampst(0.0, -(SAMPST_DELAY + CAR_RENTAL)));
+    fprintf(outfile, "\n\nAverage time in system for arrivals at terminal 1 = %10.3f", sampst(0.0, -(SAMPST_SYSTEM + TERMINAL_1)));
+    fprintf(outfile, "\nAverage time in system for arrivals at terminal 2 = %10.3f", sampst(0.0, -(SAMPST_SYSTEM + TERMINAL_2)));
+    fprintf(outfile, "\nAverage time in system for arrivals at car rental = %10.3f", sampst(0.0, -(SAMPST_SYSTEM + CAR_RENTAL)));
+    fprintf(outfile, "\n\nAverage time bus is stopped at terminal 1 = %10.3f", sampst(0.0, -(SAMPST_STOP + TERMINAL_1)));
+    fprintf(outfile, "\nAverage time bus is stopped at terminal 2 = %10.3f", sampst(0.0, -(SAMPST_STOP + TERMINAL_2)));
+    fprintf(outfile, "\nAverage time bus is stopped at car rental = %10.3f", sampst(0.0, -(SAMPST_STOP + CAR_RENTAL)));
+    fprintf(outfile, "\n\nAverage time for a loop of the bus = %10.3f", sampst(0.0, -SAMPST_LOOP));    double avg;
   
     /* (a) Number in each queue. */
   
@@ -310,13 +311,13 @@ void run_simulation() {
             bus_arrive();
             break;
             case EVENT_UNLOAD_DONE:
-            serve_next();
+            unload_done();
             break;
             case EVENT_LOAD_DONE:
-            serve_next();
+            load_done();
             break;
             case EVENT_MIN_STOP_END:
-            bus_depart();
+            min_stop_end();
             break;
             case EVENT_END_SIMULATION:
             report();
