@@ -209,40 +209,40 @@ void read_input(FILE *infile, FILE *outfile) {
 
     fprintf(outfile, "bus capacity                  : %i  \n", bus_capacity);
 
-    fprintf(outfile, "mean interarrival terminal 1  : %lgm \n", mean_interarrival[TERMINAL_1]);
-    fprintf(outfile, "mean interarrival terminal 2  : %lgm \n", mean_interarrival[TERMINAL_2]);
-    fprintf(outfile, "mean interarrival car rental  : %lgm \n", mean_interarrival[CAR_RENTAL]);
+    fprintf(outfile, "mean interarrival terminal 1  : %lgm \n", mean_interarrival[TERMINAL_1]/60.0);
+    fprintf(outfile, "mean interarrival terminal 2  : %lgm \n", mean_interarrival[TERMINAL_2]/60.0);
+    fprintf(outfile, "mean interarrival car rental  : %lgm \n", mean_interarrival[CAR_RENTAL]/60.0);
 
-    fprintf(outfile, "travel time terminal 1        : %lgm \n", travel_time[TERMINAL_1]);
-    fprintf(outfile, "travel time terminal 2        : %lgm \n", travel_time[TERMINAL_2]);
-    fprintf(outfile, "travel time car rental        : %lgm \n", travel_time[CAR_RENTAL]);
+    fprintf(outfile, "travel time terminal 1        : %lgm \n", travel_time[TERMINAL_1]/60.0);
+    fprintf(outfile, "travel time terminal 2        : %lgm \n", travel_time[TERMINAL_2]/60.0);
+    fprintf(outfile, "travel time car rental        : %lgm \n", travel_time[CAR_RENTAL]/60.0);
 
-    fprintf(outfile, "min load time                 : %lgm \n", load_min);
-    fprintf(outfile, "max load time                 : %lgm \n", load_max);
+    fprintf(outfile, "min load time                 : %lgs \n", load_min);
+    fprintf(outfile, "max load time                 : %lgs \n", load_max);
 
-    fprintf(outfile, "min unload time               : %lgm \n", unload_min);
-    fprintf(outfile, "max unload time               : %lgm \n", unload_max);
+    fprintf(outfile, "min unload time               : %lgs \n", unload_min);
+    fprintf(outfile, "max unload time               : %lgs \n", unload_max);
 
-    fprintf(outfile, "min stop time                 : %lgm \n", min_stop_time);
+    fprintf(outfile, "min stop time                 : %lgm \n", min_stop_time/60.0);
 
-    fprintf(outfile, "probability go to terminal 1  : %lgm \n", prob_distrib_dest[TERMINAL_1]);
-    fprintf(outfile, "probability go to terminal 2  : %lgm \n", prob_distrib_dest[TERMINAL_2]);
-    fprintf(outfile, "length of simulation          : %lgm \n", length_simulation);
+    fprintf(outfile, "probability go to terminal 1  : %lg \n", prob_distrib_dest[TERMINAL_1]);
+    fprintf(outfile, "probability go to terminal 2  : %lg \n", prob_distrib_dest[TERMINAL_2] - prob_distrib_dest[TERMINAL_1]);
+    fprintf(outfile, "length of simulation          : %lgh \n", length_simulation/3600.0);
 
 }
 
 void report() {
     fprintf(outfile, "\n\n\nAverage number on bus = %10.3f", timest(0.0, -TIMEST_BUS));
-    fprintf(outfile, "\n\nAverage delay in queue at terminal 1 = %10.3f", sampst(0.0, -(SAMPST_DELAY + TERMINAL_1)));
-    fprintf(outfile, "\nAverage delay in queue at terminal 2 = %10.3f", sampst(0.0, -(SAMPST_DELAY + TERMINAL_2)));
-    fprintf(outfile, "\nAverage delay in queue at car rental = %10.3f", sampst(0.0, -(SAMPST_DELAY + CAR_RENTAL)));
-    fprintf(outfile, "\n\nAverage time in system for arrivals at terminal 1 = %10.3f", sampst(0.0, -(SAMPST_SYSTEM + TERMINAL_1)));
-    fprintf(outfile, "\nAverage time in system for arrivals at terminal 2 = %10.3f", sampst(0.0, -(SAMPST_SYSTEM + TERMINAL_2)));
-    fprintf(outfile, "\nAverage time in system for arrivals at car rental = %10.3f", sampst(0.0, -(SAMPST_SYSTEM + CAR_RENTAL)));
-    fprintf(outfile, "\n\nAverage time bus is stopped at terminal 1 = %10.3f", sampst(0.0, -(SAMPST_STOP + TERMINAL_1)));
-    fprintf(outfile, "\nAverage time bus is stopped at terminal 2 = %10.3f", sampst(0.0, -(SAMPST_STOP + TERMINAL_2)));
-    fprintf(outfile, "\nAverage time bus is stopped at car rental = %10.3f", sampst(0.0, -(SAMPST_STOP + CAR_RENTAL)));
-    fprintf(outfile, "\n\nAverage time for a loop of the bus = %10.3f", sampst(0.0, -SAMPST_LOOP));    double avg;
+    fprintf(outfile, "\n\nAverage delay in queue at terminal 1 = %10.3fm", sampst(0.0, -(SAMPST_DELAY + TERMINAL_1))/60.0);
+    fprintf(outfile, "\nAverage delay in queue at terminal 2 = %10.3fm", sampst(0.0, -(SAMPST_DELAY + TERMINAL_2))/60.0);
+    fprintf(outfile, "\nAverage delay in queue at car rental = %10.3fm", sampst(0.0, -(SAMPST_DELAY + CAR_RENTAL))/60.0);
+    fprintf(outfile, "\n\nAverage time in system for arrivals at terminal 1 = %10.3fm", sampst(0.0, -(SAMPST_SYSTEM + TERMINAL_1))/60.0);
+    fprintf(outfile, "\nAverage time in system for arrivals at terminal 2 = %10.3fm", sampst(0.0, -(SAMPST_SYSTEM + TERMINAL_2))/60.0);
+    fprintf(outfile, "\nAverage time in system for arrivals at car rental = %10.3fm", sampst(0.0, -(SAMPST_SYSTEM + CAR_RENTAL))/60.0);
+    fprintf(outfile, "\n\nAverage time bus is stopped at terminal 1 = %10.3fm", sampst(0.0, -(SAMPST_STOP + TERMINAL_1))/60.0);
+    fprintf(outfile, "\nAverage time bus is stopped at terminal 2 = %10.3fm", sampst(0.0, -(SAMPST_STOP + TERMINAL_2))/60.0);
+    fprintf(outfile, "\nAverage time bus is stopped at car rental = %10.3fm", sampst(0.0, -(SAMPST_STOP + CAR_RENTAL))/60.0);
+    fprintf(outfile, "\n\nAverage time for a loop of the bus = %10.3fm", sampst(0.0, -SAMPST_LOOP)/60.0);    double avg;
   
     /* (a) Number in each queue. */
   
@@ -261,7 +261,7 @@ void report() {
     for (j = 1; j <= NUM_LOCATIONS; ++j)
       {
         avg = sampst (0.0, -(SAMPST_DELAY + j));
-        fprintf (outfile, "\n%8d%15.3f%15.3f", j, avg, transfer[3]);
+        fprintf (outfile, "\n%8d%15.3f%15.3f", j, avg/60.0, transfer[3]/60.0);
       }
   
     /* (c) Number on the bus. */
@@ -277,14 +277,14 @@ void report() {
     for (j = 1; j <= NUM_LOCATIONS; ++j)
       {
         avg = sampst (0.0, -(SAMPST_STOP + j));
-        fprintf (outfile, "\n%8d%15.3f%15.3f%15.3f", j, avg, transfer[3], transfer[4]);
+        fprintf (outfile, "\n%8d%15.3f%15.3f%15.3f", j, avg/60.0, transfer[3]/60.0, transfer[4]/60.0);
       }
   
     /* (e) Loop time of the bus. */
   
     avg = sampst (0.0, -SAMPST_LOOP);
     fprintf (outfile, "\n\n\n(e) Loop time of the bus (minutes)");
-    fprintf (outfile, "\n\nAverage%15.3f\nMaximum%15.3f\nMinimum%15.3f", avg, transfer[3], transfer[4]);
+    fprintf (outfile, "\n\nAverage%15.3f\nMaximum%15.3f\nMinimum%15.3f", avg/60.0, transfer[3]/60.0, transfer[4]/60.0);
   
     /* (f) Time in system by arrival location. */
   
@@ -293,7 +293,7 @@ void report() {
     for (j = 1; j <= NUM_LOCATIONS; ++j)
       {
         avg = sampst (0.0, -(SAMPST_SYSTEM + j));
-        fprintf (outfile, "\n%8d%15.3f%15.3f%15.3f", j, avg, transfer[3], transfer[4]);
+        fprintf (outfile, "\n%8d%15.3f%15.3f%15.3f", j, avg/60.0, transfer[3]/60.0, transfer[4]/60.0);
       }
     fprintf (outfile, "\n");
   }
