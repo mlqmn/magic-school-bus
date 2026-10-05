@@ -82,8 +82,6 @@ void serve_next() { /* Start next unloading/loading at current location.
         origin = transfer[2];
         destination = transfer[3];
         bus_busy = true;
-        list_file(LAST, LIST_BUS + destination);
-        num_on_bus++;
         transfer[3] = arrival_time;
         transfer[4] = origin;
         transfer[5] = destination;
